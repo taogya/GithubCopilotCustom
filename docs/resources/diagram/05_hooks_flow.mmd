@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant D as 開発者
+    participant A as エージェント
+    participant H as フック
+    participant T as ターミナル
+
+    D->>A: タスクを依頼
+    A->>H: PreToolUse 発火
+    H->>T: lint チェック実行
+    T-->>H: 結果を返す
+    H-->>A: allow / deny 判定
+    A->>A: ファイル編集
+    A->>H: PostToolUse 発火
+    H->>T: テスト実行
+    T-->>H: 結果を返す

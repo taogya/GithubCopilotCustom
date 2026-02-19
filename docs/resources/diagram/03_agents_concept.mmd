@@ -1,0 +1,18 @@
+graph TB
+    subgraph agents["カスタムエージェント"]
+        A["🧪 tester.agent.md<br>テスト専門"]
+        B["📐 architect.agent.md<br>設計専門"]
+        C["🔍 reviewer.agent.md<br>レビュー専門"]
+    end
+
+    D["開発者"] -->|"@tester"| A
+    D -->|"@architect"| B
+    D -->|"@reviewer"| C
+
+    A -->|ハンドオフ| B
+    B -->|ハンドオフ| A
+
+    class A green
+    class B blue
+    class C purple
+    class D neutral

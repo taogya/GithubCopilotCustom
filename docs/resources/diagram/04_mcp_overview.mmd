@@ -1,0 +1,11 @@
+graph LR
+    C["Copilot"] <-->|MCP| S1["🗄️ DBサーバー"]
+    C <-->|MCP| S2["📊 分析ツール"]
+    C <-->|MCP| S3["🌐 外部API"]
+    C <-->|MCP| S4["📁 ファイルシステム"]
+    C <-->|MCP| S5["🔧 DevOpsツール"]
+
+    class C blue
+    class S1,S2 green
+    class S3,S4 amber
+    class S5 purple

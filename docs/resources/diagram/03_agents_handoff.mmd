@@ -1,0 +1,12 @@
+sequenceDiagram
+    participant D as 開発者
+    participant I as @implementer
+    participant T as @tester
+    participant R as @reviewer
+
+    D->>I: 機能Xを実装して
+    I->>T: テストを先に書いて
+    T-->>I: テスト完了
+    I->>I: 最小実装→リファクタリング
+    I->>R: レビューお願い
+    R-->>D: レビュー結果を報告

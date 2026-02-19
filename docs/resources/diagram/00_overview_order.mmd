@@ -1,0 +1,12 @@
+graph TD
+    S(("Start")) --> Step1
+    Step1["① カスタム指示<br>copilot-instructions.md を作る"] --> Step2
+    Step2["② プロンプトファイル<br>よく使うタスクを .prompt.md 化"] --> Step3
+    Step3["③ カスタムエージェント<br>専門エージェントを .agent.md で定義"] --> Step4
+    Step4["④ MCPサーバー / フック<br>外部連携・自動制御を追加"]
+
+    class S neutral
+    class Step1 blue
+    class Step2 green
+    class Step3 amber
+    class Step4 purple

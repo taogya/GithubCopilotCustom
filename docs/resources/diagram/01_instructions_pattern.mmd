@@ -1,0 +1,17 @@
+graph TD
+    A["copilot-instructions.md<br>プロジェクト全体の規約"] --> B["コーディング規約"]
+    A --> C["技術スタック"]
+    A --> D["命名規則"]
+
+    E[".instructions.md<br>applyTo: **/*.test.ts"] --> F["テスト規約"]
+
+    G[".instructions.md<br>applyTo: src/api/**"] --> H["API設計規約"]
+
+    I["AGENTS.md<br>エージェント向けルール"] --> J["ワークフロー規約"]
+
+    class A blue
+    class B,C,D neutral
+    class E,G green
+    class F,H neutral
+    class I amber
+    class J neutral

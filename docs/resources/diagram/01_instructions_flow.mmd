@@ -1,0 +1,16 @@
+graph LR
+    subgraph files["指示ファイル"]
+        A["copilot-instructions.md<br>（常時適用）"]
+        B[".instructions.md<br>（スコープ付き）"]
+        C["AGENTS.md / CLAUDE.md<br>（互換ファイル）"]
+    end
+    A --> D["Copilot"]
+    B --> D
+    C --> D
+    D --> E["ルールに従った<br>コード生成・提案"]
+
+    class A blue
+    class B green
+    class C amber
+    class D purple
+    class E neutral

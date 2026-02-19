@@ -1,0 +1,13 @@
+graph TD
+    CI["copilot-instructions.md<br>プロジェクト規約"] --> Agent["Copilot エージェント"]
+    INS[".instructions.md<br>テスト規約"] --> Agent
+    PA["planner.agent.md<br>設計エージェント"] --> Agent
+    PR["review.prompt.md<br>レビュータスク"] --> Agent
+    MCP["mcp.json<br>GitHub MCP"] --> Agent
+    HK["hooks/*.json<br>自動lint/テスト"] --> Agent
+
+    class CI,INS blue
+    class PA green
+    class PR amber
+    class MCP,HK pink
+    class Agent purple

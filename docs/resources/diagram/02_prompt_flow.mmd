@@ -1,0 +1,9 @@
+sequenceDiagram
+    participant U as 開発者
+    participant V as VS Code
+    participant C as Copilot
+
+    U->>V: /my-prompt と入力
+    V->>V: .prompt.md を読み込み
+    V->>C: プロンプト内容 + コンテキストを送信
+    C->>U: プロンプトに従った応答
