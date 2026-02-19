@@ -52,7 +52,8 @@ GitHub Copilot には、プロジェクト固有のルールや知識をファ�
 ───────────────────────────
 このファイルを参照して、本プロジェクトに最適な
 GitHub Copilot カスタム設定ファイル一式を生成してください。
-&#91;&#93;(master/custom-copilot_ja.md)
+### master/custom-copilot_ja.md の中身を貼り付ける###
+### またはプロジェクト内に置いた custom-copilot_ja.md にリンク ###
 ───────────────────────────
 ```
 
