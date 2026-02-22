@@ -21,9 +21,9 @@ GitHub Copilot には、プロジェクト固有のルールや知識をファ�
 | # | ドキュメント | 内容 |
 |---|------------|------|
 | 00 | [カスタマイズ概要](docs/00_overview.md) | 6つのカスタマイズ手法の全体像・優先度ガイド |
-| 01 | [カスタム指示](docs/01_custom-instructions.md) | `copilot-instructions.md` / `.instructions.md` / `AGENTS.md` の使い方 |
-| 02 | [プロンプトファイル](docs/02_prompt-files.md) | `.prompt.md` による再利用可能なチャット指示 |
-| 03 | [カスタムエージェント](docs/03_custom-agents.md) | `.agent.md` で専門AIアシスタントを定義 |
+| 01 | [カスタム指示](docs/01_custom-instructions.md) | `copilot-instructions.md` / `*.instructions.md` / `AGENTS.md` の使い方 |
+| 02 | [プロンプトファイル](docs/02_prompt-files.md) | `*.prompt.md` による再利用可能なチャット指示 |
+| 03 | [カスタムエージェント](docs/03_custom-agents.md) | `*.agent.md` で専門AIアシスタントを定義 |
 | 04 | [MCPサーバー](docs/04_mcp-servers.md) | 外部ツール・API・DBをCopilotに接続 |
 | 05 | [エージェントフック](docs/05_hooks.md) | エージェント動作に連動した自動コマンド実行 |
 | 06 | [Tips & ベストプラクティス](docs/06_tips.md) | コンテキストエンジニアリング・実践ワークフロー |

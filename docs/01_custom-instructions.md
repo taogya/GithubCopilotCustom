@@ -11,7 +11,7 @@
 | ファイル | 場所 | 適用範囲 | 用途 |
 |---------|------|---------|------|
 | `copilot-instructions.md` | `.github/` | プロジェクト全体・常時 | コーディング規約、技術スタック指定 |
-| `.instructions.md` | `.github/instructions/`（デフォルト）または任意 | `applyTo` で制御 | 特定ファイル・ディレクトリの規約 |
+| `*.instructions.md` | `.github/instructions/`（デフォルト）または任意 | `applyTo` で制御 | 特定ファイル・ディレクトリの規約 |
 | `AGENTS.md` | ルート or 任意 | 常時（全チャットリクエスト） | プロジェクト全体のエージェント指示 |
 | `CLAUDE.md` | ルート or 任意 | 常時（全チャットリクエスト） | Claude互換の指示ファイル |
 
@@ -43,11 +43,32 @@
 - ファイル名: kebab-case.ts
 ```
 
-## 2. .instructions.md（スコープ付き指示）
+## 2. *.instructions.md（スコープ付き指示）
 
 **デフォルト保存先:** `.github/instructions/`（任意のディレクトリにも配置可）
 
-`applyTo` メタデータでどのファイルに適用するか制御。
+拡張子 `.instructions.md` を持つ Markdown ファイル。ファイル名の `*` 部分は自由に命名できる。
+
+### ファイル名の付け方
+
+ファイル名は `{scope}-{purpose}.instructions.md` の形式で、対象スコープや役割がわかる名前を付ける。
+
+| ファイル名例 | 対象 |
+|-------------|------|
+| `test-rules.instructions.md` | テストファイルの規約 |
+| `api-guidelines.instructions.md` | API層のガイドライン |
+| `react-components.instructions.md` | Reactコンポーネントの規約 |
+| `python-style.instructions.md` | Pythonコーディングスタイル |
+
+`applyTo` メタデータでどのファイルに適用するか制御できる。
+
+### フロントマター
+
+| フィールド | 必須 | 説明 |
+|-----------|:----:|------|
+| `name` | - | UIに表示される名前（省略時はファイル名） |
+| `description` | - | Chatビューでホバー時に表示される説明 |
+| `applyTo` | - | 適用対象のglobパターン。未指定の場合は自動適用されず、手動でチャットに添付可能 |
 
 ### 記述例
 
@@ -91,7 +112,7 @@ VS Codeが自動検出し、**全てのチャットリクエストに常時適�
 - `copilot-instructions.md` は **簡潔に**（長すぎるとノイズになる）
 - 技術スタック・主要ライブラリは必ず明記する
 - 「やらないこと」も書く（例：`any` 禁止、`class` コンポーネント禁止）
-- `.instructions.md` は対象ファイルの近くに配置すると管理しやすい
+- `*.instructions.md` は対象ファイルの近くに配置すると管理しやすい
 
 ## 公式ドキュメント
 

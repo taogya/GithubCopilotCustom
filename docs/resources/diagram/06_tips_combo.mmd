@@ -1,6 +1,6 @@
 graph TD
     CI["copilot-instructions.md<br>プロジェクト規約"] --> Agent["Copilot エージェント"]
-    INS[".instructions.md<br>テスト規約"] --> Agent
+    INS["*.instructions.md<br>テスト規約"] --> Agent
     PA["planner.agent.md<br>設計エージェント"] --> Agent
     PR["review.prompt.md<br>レビュータスク"] --> Agent
     MCP["mcp.json<br>GitHub MCP"] --> Agent

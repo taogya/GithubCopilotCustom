@@ -85,18 +85,20 @@ project-root/
 
 ---
 
-## 1.2 .instructions.md（スコープ付き指示）
+## 1.2 *.instructions.md（スコープ付き指示）
 
 - **場所:** `.github/instructions/`（デフォルト）または任意のディレクトリ
 - **適用:** `applyTo` globパターンにマッチするファイルを操作するチャットリクエスト
 - **形式:** YAML フロントマター + Markdown本文
-- **配置設定:** `github.copilot.chat.instructionFilesLocations` で検索パスをカスタマイズ可能
+- **配置設定:** `chat.instructionsFilesLocations` で検索パスをカスタマイズ可能
 
 ### フロントマター仕様
 
 ```yaml
 ---
-applyTo: "glob-pattern"    # 必須: 適用対象のファイルパターン
+name: "表示名"           # 任意: UIに表示される名前（省略時はファイル名）
+description: "説明"     # 任意: Chatビューでホバー時に表示
+applyTo: "glob-pattern"    # 任意: 適用対象のファイルパターン（未指定時は自動適用されず手動添付）
 ---
 ```
 
@@ -115,6 +117,8 @@ applyTo: "glob-pattern"    # 必須: 適用対象のファイルパターン
 
 ```markdown
 ---
+name: "{display_name}"
+description: "{description}"
 applyTo: "{glob_pattern}"
 ---
 - {instruction_1}
@@ -130,7 +134,7 @@ applyTo: "{glob_pattern}"
 
 ---
 
-## 1.3 .prompt.md（プロンプトファイル）
+## 1.3 *.prompt.md（プロンプトファイル）
 
 - **場所:** `.github/prompts/`
 - **呼び出し:** チャットで `/ファイル名`（拡張子なし）
@@ -142,11 +146,15 @@ applyTo: "{glob_pattern}"
 ```yaml
 ---
 description: "説明文"           # 任意: スラッシュコマンド一覧で表示
+name: "コマンド名"          # 任意: スラッシュコマンド名（省略時はファイル名）
 tools:                          # 任意: 使用可能ツールを制限
-  - name: editFiles
-  - name: runInTerminal
-  - name: readFile
-  - name: codebase
+  - editFiles
+  - runInTerminal
+  - readFile
+  - codebase
+agent: "agent"                  # 任意: 実行エージェント（ask/agent/plan/カスタムエージェント名）
+model: "gpt-4o"                 # 任意: 使用モデル
+argument-hint: "ヒント"       # 任意: チャット入力欄のヒントテキスト
 ---
 ```
 
@@ -178,8 +186,8 @@ tools:                          # 任意: 使用可能ツールを制限
 ---
 description: "{description}"
 tools:
-  - name: {tool_1}
-  - name: {tool_2}
+  - {tool_1}
+  - {tool_2}
 ---
 # {task_title}
 
@@ -203,7 +211,7 @@ tools:
 
 ---
 
-## 1.4 .agent.md（カスタムエージェント）
+## 1.4 *.agent.md（カスタムエージェント）
 
 - **場所:** `.github/agents/`
 - **呼び出し:** Chat の Agents ドロップダウンから選択、または `@ファイル名` でメンション
@@ -215,20 +223,23 @@ tools:
 ```yaml
 ---
 # 基本
-tools:                              # 任意: 使用可能ツールの配列
-  - name: editFiles
-  - name: runInTerminal
-  - name: readFile
-  - name: codebase
+tools:                              # 任意: 使用可能ツールの配列（ツール名の文字列リスト）
+  - editFiles
+  - runInTerminal
+  - readFile
+  - codebase
 description: "エージェントの説明"   # 任意: 一覧で表示される説明
 name: "表示名"                      # 任意: ファイル名と異なる表示名
-model: "gpt-4o"                     # 任意: 使用モデル指定
+model: "gpt-4o"                     # 任意: 使用モデル指定（文字列または優先順位の配列）
 
 # エージェント間連携
-handoffs:                           # 任意: ハンドオフ先エージェント
-  - agent-name-1
-  - agent-name-2
-agents:                             # 任意: サブエージェント
+handoffs:                           # 任意: ハンドオフ先
+  - label: "ボタンラベル"        # ハンドオフボタンの表示テキスト
+    agent: agent-name              # ターゲットエージェント名
+    prompt: "送信プロンプト"     # ターゲットエージェントへのプロンプト
+    send: false                    # 任意: 自動送信するか（デフォルト: false）
+    model: "GPT-5 (copilot)"       # 任意: ハンドオフ時のモデル
+agents:                             # 任意: サブエージェント（* で全許可）
   - sub-agent-1
 
 # MCP連携
@@ -237,9 +248,9 @@ mcp-servers:                        # 任意: 使用するMCPサーバー
 
 # 高度な設定
 argument-hint: "レビュー対象を指定"  # 任意: 呼び出し時のヒントテキスト
-user-invokable: true                # 任意: ユーザーが直接呼び出し可能か
-disable-model-invocation: false     # 任意: モデルによる自動呼び出しを無効化
-target: "agent"                     # 任意: ターゲットモード
+user-invokable: true                # 任意: ユーザーが直接呼び出し可能か（デフォルト: true）
+disable-model-invocation: false     # 任意: モデルによる自動呼び出しを無効化（デフォルト: false）
+target: "vscode"                    # 任意: ターゲットモード（vscode / github-copilot）
 ---
 ```
 
@@ -267,11 +278,13 @@ target: "agent"                     # 任意: ターゲットモード
 ```markdown
 ---
 tools:
-  - name: {tool_1}
-  - name: {tool_2}
+  - {tool_1}
+  - {tool_2}
 description: "{description}"
 handoffs:
-  - {handoff_agent_1}
+  - label: "{handoff_label}"
+    agent: {handoff_agent_1}
+    prompt: "{handoff_prompt}"
 ---
 
 # あなたの役割
@@ -291,20 +304,105 @@ handoffs:
 - {output_format}
 ```
 
-### 主要ビルトインツール一覧
+### ビルトインツール一覧
+
+> **ヒント:** チャット入力欄で `#` を入力すると、利用可能な全ツールの一覧を確認できます。
+
+#### ファイル操作
 
 | ツール名 | 機能 |
 |---------|------|
-| `editFiles` | ファイル編集 |
-| `createFile` | ファイル作成 |
-| `readFile` | ファイル読み取り |
-| `runInTerminal` | ターミナルコマンド実行 |
-| `codebase` | コードベース検索 |
-| `searchResults` | Web検索結果取得 |
-| `fetch` | URL取得 |
-| `githubRepo` | GitHubリポジトリ操作 |
-| `usages` | シンボル使用箇所検索 |
-| `testFailure` | テスト失敗情報 |
+| `editFiles` | ワークスペース内のファイルを編集 |
+| `createFile` | 新規ファイルを作成 |
+| `readFile` | ファイルの内容を読み取り |
+| `listDirectory` | ディレクトリ内のファイルを一覧表示 |
+| `createDirectory` | 新規ディレクトリを作成 |
+| `fileSearch` | glob パターンでファイルを検索 |
+| `textSearch` | ファイル内のテキストを検索 |
+
+#### ターミナル・タスク
+
+| ツール名 | 機能 |
+|---------|------|
+| `runInTerminal` | 統合ターミナルでシェルコマンドを実行 |
+| `getTerminalOutput` | ターミナルコマンドの出力を取得 |
+| `terminalLastCommand` | 最後に実行したターミナルコマンドと出力を取得 |
+| `terminalSelection` | ターミナルの選択テキストを取得 |
+| `runTask` | 既存のタスクを実行 |
+| `createAndRunTask` | タスクを作成して実行 |
+| `getTaskOutput` | タスクの出力を取得 |
+
+#### 検索・コンテキスト
+
+| ツール名 | 機能 |
+|---------|------|
+| `codebase` | ワークスペース内のコードを検索 |
+| `searchResults` | 検索ビューの結果を取得 |
+| `usages` | 参照・実装・定義の検索（Find All References / Find Implementation / Go to Definition） |
+| `problems` | Problems パネルのエラー・警告を取得 |
+| `selection` | エディタの選択テキストを取得 |
+| `changes` | ソースコントロールの変更一覧を取得 |
+
+#### 外部連携
+
+| ツール名 | 機能 |
+|---------|------|
+| `fetch` | Web ページの内容を取得 |
+| `githubRepo` | GitHub リポジトリ内のコードを検索 |
+| `extensions` | VS Code 拡張機能を検索 |
+| `installExtension` | VS Code 拡張機能をインストール |
+
+#### テスト
+
+| ツール名 | 機能 |
+|---------|------|
+| `runTests` | ユニットテストを実行 |
+| `testFailure` | テスト失敗情報を取得 |
+
+#### ノートブック
+
+| ツール名 | 機能 |
+|---------|------|
+| `editNotebook` | ノートブックを編集 |
+| `getNotebookSummary` | ノートブックのセル一覧を取得 |
+| `readNotebookCellOutput` | ノートブックセルの出力を読み取り |
+| `runCell` | ノートブックセルを実行 |
+
+#### VS Code 操作
+
+| ツール名 | 機能 |
+|---------|------|
+| `runVscodeCommand` | VS Code コマンドを実行 |
+| `openSimpleBrowser` | 統合ブラウザでローカルアプリをプレビュー |
+| `VSCodeAPI` | VS Code 機能・拡張開発について質問 |
+
+#### スキャフォールド
+
+| ツール名 | 機能 |
+|---------|------|
+| `new` | 新規ワークスペースをスキャフォールド |
+| `newWorkspace` | 新規ワークスペースを作成 |
+| `newJupyterNotebook` | 新規 Jupyter ノートブックをスキャフォールド |
+| `getProjectSetupInfo` | プロジェクトセットアップ情報を取得 |
+
+#### その他
+
+| ツール名 | 機能 |
+|---------|------|
+| `runSubagent` | サブエージェントで隔離されたタスクを実行 |
+| `todos` | TODO リストで実装の進捗を追跡 |
+
+#### ツールセット（複数ツールのグループ）
+
+| ツールセット名 | 機能 |
+|--------------|------|
+| `edit` | 編集系ツールのセットを有効化 |
+| `search` | 検索系ツールのセットを有効化 |
+| `runCommands` | ターミナルコマンド実行系ツールのセットを有効化 |
+| `runNotebooks` | ノートブック実行系ツールのセットを有効化 |
+| `runTasks` | タスク実行系ツールのセットを有効化 |
+
+> **参照:** [Use tools with agents](https://code.visualstudio.com/docs/copilot/agents/agent-tools) / [チートシート - Chat tools](https://code.visualstudio.com/docs/copilot/reference/copilot-vscode-features#_chat-tools)
 
 ---
 
@@ -540,7 +638,7 @@ description: "{skill_description}"
 ```jsonc
 {
   // カスタム指示ファイルの検索パス
-  "github.copilot.chat.instructionFilesLocations": [
+  "chat.instructionsFilesLocations": [
     { ".github/instructions": "**" }
   ],
 
@@ -635,9 +733,9 @@ description: "{skill_description}"
 
 | ファイルタイプ | 命名パターン | 例 |
 |-------------|-------------|-----|
-| `.instructions.md` | `{scope}-{purpose}.instructions.md` | `api-guidelines.instructions.md` |
-| `.prompt.md` | `{action}.prompt.md` | `review.prompt.md` |
-| `.agent.md` | `{role}.agent.md` | `reviewer.agent.md` |
+| `*.instructions.md` | `{scope}-{purpose}.instructions.md` | `api-guidelines.instructions.md` |
+| `*.prompt.md` | `{action}.prompt.md` | `review.prompt.md` |
+| `*.agent.md` | `{role}.agent.md` | `reviewer.agent.md` |
 | `SKILL.md` | ディレクトリ名が識別子 | `.github/skills/deploy/SKILL.md` |
 
 ### 2.3 品質チェックリスト
@@ -744,8 +842,8 @@ applyTo: "src/api/**"
 ---
 description: "コードレビュー（バグ・パフォーマンス・可読性・セキュリティ）"
 tools:
-  - name: readFile
-  - name: codebase
+  - readFile
+  - codebase
 ---
 以下の観点で ${file} をレビューしてください：
 
@@ -765,9 +863,9 @@ tools:
 ---
 description: "テストファイルを生成"
 tools:
-  - name: editFiles
-  - name: readFile
-  - name: runInTerminal
+  - editFiles
+  - readFile
+  - runInTerminal
 ---
 ${file} のテストを生成してください。
 
@@ -786,9 +884,9 @@ ${file} のテストを生成してください。
 ```markdown
 ---
 tools:
-  - name: readFile
-  - name: codebase
-  - name: usages
+  - readFile
+  - codebase
+  - usages
 description: "コードレビュー専門エージェント"
 ---
 

@@ -10,9 +10,9 @@
 
 | 手段 | 主なファイル | 用途 | 難易度 |
 |------|-------------|------|:------:|
-| [カスタム指示](./01_custom-instructions.md) | `copilot-instructions.md` / `.instructions.md` | コーディングルール・規約の常時適用 | ⭐ |
-| [プロンプトファイル](./02_prompt-files.md) | `.prompt.md` | よく使うタスクをスラッシュコマンド化 | ⭐ |
-| [カスタムエージェント](./03_custom-agents.md) | `.agent.md` | 専門的なAIアシスタントを定義 | ⭐⭐ |
+| [カスタム指示](./01_custom-instructions.md) | `copilot-instructions.md` / `*.instructions.md` | コーディングルール・規約の常時適用 | ⭐ |
+| [プロンプトファイル](./02_prompt-files.md) | `*.prompt.md` | よく使うタスクをスラッシュコマンド化 | ⭐ |
+| [カスタムエージェント](./03_custom-agents.md) | `*.agent.md` | 専門的なAIアシスタントを定義 | ⭐⭐ |
 | [MCPサーバー](./04_mcp-servers.md) | `mcp.json` | 外部ツール・APIとの連携 | ⭐⭐⭐ |
 | [フック](./05_hooks.md) | `.github/copilot-hooks.json` | エージェント動作の自動制御 | ⭐⭐⭐ |
 
@@ -46,6 +46,8 @@ your-project/
 - まずは → [カスタム指示](./01_custom-instructions.md) から始めましょう
 - 実践的なワークフロー例 → [Tips & ベストプラクティス](./06_tips.md)
 - 公式ドキュメント → [Customize AI in VS Code](https://code.visualstudio.com/docs/copilot/customization/overview)
+- 利用可能なツール → [Use tools with agents](https://code.visualstudio.com/docs/copilot/agents/agent-tools)
+- ビルトインツール一覧 → [Chat tools（チートシート）](https://code.visualstudio.com/docs/copilot/reference/copilot-vscode-features#_chat-tools)
 
 ---
 

@@ -1,7 +1,7 @@
 graph LR
     subgraph files["指示ファイル"]
         A["copilot-instructions.md<br>（常時適用）"]
-        B[".instructions.md<br>（スコープ付き）"]
+        B["*.instructions.md<br>（スコープ付き）"]
         C["AGENTS.md / CLAUDE.md<br>（互換ファイル）"]
     end
     A --> D["Copilot"]

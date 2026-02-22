@@ -8,7 +8,7 @@
 
 ## プロンプトファイルとの違い
 
-| | プロンプトファイル `.prompt.md` | カスタムエージェント `.agent.md` |
+| | プロンプトファイル `*.prompt.md` | カスタムエージェント `*.agent.md` |
 |---|---|---|
 | **呼び出し** | `/コマンド名` | Agentsドロップダウンから選択 / `@エージェント名` |
 | **性質** | 単発のタスク指示 | 専門的なペルソナ（人格） |
@@ -20,10 +20,23 @@
 
 | 項目 | 内容 |
 |------|------|
-| **ファイル形式** | `.agent.md`（Markdownファイル） |
+| **ファイル形式** | `*.agent.md`（Markdownファイル） |
 | **配置場所** | `.github/agents/` |
 | **呼び出し方** | Agentsドロップダウンから選択、またはチャットで `@ファイル名` |
 | **VS Code設定** | `chat.agentFilesLocations` で場所をカスタマイズ可能 |
+
+## ファイル名の付け方
+
+ファイル名は `{role}.agent.md` の形式で、エージェントの役割がわかる名前を付ける。ファイル名（拡張子を除く）が Agents ドロップダウンの表示名や `@` メンション名になる。
+
+| ファイル名 | 呼び出し | 用途 |
+|-----------|---------|------|
+| `reviewer.agent.md` | `@reviewer` | コードレビュー |
+| `tester.agent.md` | `@tester` | テスト作成・TDD |
+| `planner.agent.md` | `@planner` | 設計・実装計画 |
+| `architect.agent.md` | `@architect` | アーキテクチャ判断 |
+
+> **ヒント:** フロントマターの `name` フィールドでファイル名とは別の表示名を指定可能。
 
 ## 基本的な書き方
 
@@ -32,9 +45,9 @@
 ```markdown
 ---
 tools:
-  - name: editFiles
-  - name: readFile
-  - name: codebase
+  - editFiles
+  - readFile
+  - codebase
 description: "コードレビュー専門エージェント"
 ---
 ```
@@ -43,14 +56,19 @@ description: "コードレビュー専門エージェント"
 
 | フィールド | 必須 | 説明 |
 |-----------|:----:|------|
-| `tools` | - | 使用可能なツールの配列 |
+| `tools` | - | 使用可能ツールの配列（ツール名の文字列リスト） |
+
+> **ヒント:** チャット入力欄で `#` を入力すると利用可能な全ツールの一覧を確認できます。ビルトインツールの完全な一覧は [Chat tools（チートシート）](https://code.visualstudio.com/docs/copilot/reference/copilot-vscode-features#_chat-tools) を参照。MCPサーバーの全ツールを含める場合は `<server-name>/*` 形式を使用。
 | `description` | - | エージェントの説明文 |
-| `handoffs` | - | 委任先エージェントの配列 |
 | `name` | - | 表示名（ファイル名と異なる場合） |
-| `model` | - | 使用するモデルの指定 |
-| `agents` | - | サブエージェントの配列 |
+| `model` | - | 使用するモデルの指定（文字列または優先順位の配列） |
+| `handoffs` | - | ハンドオフ先の配列（下記参照） |
+| `agents` | - | サブエージェントの配列（`*` で全エージェント許可） |
 | `mcp-servers` | - | 使用するMCPサーバー |
 | `argument-hint` | - | 呼び出し時のヒントテキスト |
+| `user-invokable` | - | ユーザーが直接呼び出し可能か（デフォルト: `true`） |
+| `disable-model-invocation` | - | モデルによる自動呼び出しを無効化（デフォルト: `false`） |
+| `target` | - | ターゲットモード（`vscode` / `github-copilot`） |
 
 ### 本文の例
 
@@ -80,23 +98,28 @@ description: "コードレビュー専門エージェント"
 ```markdown
 ---
 tools:
-  - name: editFiles
-  - name: runInTerminal
+  - editFiles
+  - runInTerminal
 description: "TDD実装エージェント"
 handoffs:
-  - tester
-  - reviewer
+  - label: テスト作成
+    agent: tester
+    prompt: 上記の実装に対するテストを作成してください。
+  - label: レビュー依頼
+    agent: reviewer
+    prompt: 上記の実装をレビューしてください。
 ---
 
 # あなたの役割
 あなたはTDD実装エンジニアです。
 
 # ワークフロー
-1. テストを先に書く → @tester に委任
+1. テストを先に書く
 2. テストが通る最小限のコードを実装
 3. リファクタリング
-4. レビュー依頼 → @reviewer に委任
 ```
+
+> **ハンドオフの仕組み:** チャット応答完了後にハンドオフボタンが表示され、ユーザーが選択するとターゲットエージェントに切り替わる。`send: true` を指定すると自動送信される。
 
 <img alt="ハンドオフのシーケンス" src="./resources/images/03_agents_handoff.svg">
 
@@ -128,20 +151,22 @@ scripts/deploy.sh を使ってデプロイを実行します。
 
 ## 実用例
 
-| エージェント | 用途 |
-|-------------|------|
-| `@reviewer` | コードレビュー |
-| `@tester` | テスト作成・TDD |
-| `@architect` | 設計レビュー・アーキテクチャ判断 |
-| `@docs` | ドキュメント生成・更新 |
-| `@migrator` | ライブラリ移行・アップグレード |
-| `@security` | セキュリティ診断 |
+| エージェント | ファイル名 | 用途 |
+|-------------|-----------|------|
+| `@reviewer` | `reviewer.agent.md` | コードレビュー |
+| `@tester` | `tester.agent.md` | テスト作成・TDD |
+| `@architect` | `architect.agent.md` | 設計レビュー・アーキテクチャ判断 |
+| `@docs` | `docs.agent.md` | ドキュメント生成・更新 |
+| `@migrator` | `migrator.agent.md` | ライブラリ移行・アップグレード |
+| `@security` | `security.agent.md` | セキュリティ診断 |
 
 ## 公式ドキュメント
 
 - [Custom agents](https://code.visualstudio.com/docs/copilot/customization/custom-agents)
 - [Agent Skills](https://code.visualstudio.com/docs/copilot/customization/agent-skills)
 - [Subagents](https://code.visualstudio.com/docs/copilot/agents/subagents)
+- [Use tools with agents](https://code.visualstudio.com/docs/copilot/agents/agent-tools) — ツールの種類・承認フロー・ツールセット
+- [Chat tools（チートシート）](https://code.visualstudio.com/docs/copilot/reference/copilot-vscode-features#_chat-tools) — ビルトインツール完全一覧
 
 ---
 

@@ -85,18 +85,20 @@ project-root/
 
 ---
 
-## 1.2 .instructions.md (Scoped Instructions)
+## 1.2 *.instructions.md (Scoped Instructions)
 
 - **Location:** `.github/instructions/` (default) or any directory
 - **Scope:** Applied to chat requests that operate on files matching the `applyTo` glob pattern
 - **Format:** YAML frontmatter + Markdown body
-- **Path configuration:** Customize search paths with `github.copilot.chat.instructionFilesLocations`
+- **Path configuration:** Customize search paths with `chat.instructionsFilesLocations`
 
 ### Frontmatter Specification
 
 ```yaml
 ---
-applyTo: "glob-pattern"    # Required: target file pattern
+name: "Display Name"        # Optional: name shown in UI (defaults to filename)
+description: "Description"  # Optional: shown on hover in Chat view
+applyTo: "glob-pattern"     # Optional: target file pattern (if omitted, not auto-applied but can be manually attached)
 ---
 ```
 
@@ -115,6 +117,8 @@ applyTo: "glob-pattern"    # Required: target file pattern
 
 ```markdown
 ---
+name: "{display_name}"
+description: "{description}"
 applyTo: "{glob_pattern}"
 ---
 - {instruction_1}
@@ -130,7 +134,7 @@ applyTo: "{glob_pattern}"
 
 ---
 
-## 1.3 .prompt.md (Prompt Files)
+## 1.3 *.prompt.md (Prompt Files)
 
 - **Location:** `.github/prompts/`
 - **Invocation:** Type `/filename` (without extension) in chat
@@ -142,11 +146,15 @@ applyTo: "{glob_pattern}"
 ```yaml
 ---
 description: "Description text"     # Optional: shown in slash command list
+name: "Command name"                # Optional: slash command name (defaults to filename)
 tools:                              # Optional: restrict available tools
-  - name: editFiles
-  - name: runInTerminal
-  - name: readFile
-  - name: codebase
+  - editFiles
+  - runInTerminal
+  - readFile
+  - codebase
+agent: "agent"                      # Optional: execution agent (ask/agent/plan/custom agent name)
+model: "gpt-4o"                     # Optional: language model
+argument-hint: "Hint"               # Optional: hint text in chat input field
 ---
 ```
 
@@ -178,8 +186,8 @@ Use `[]()` format to attach project files as context.
 ---
 description: "{description}"
 tools:
-  - name: {tool_1}
-  - name: {tool_2}
+  - {tool_1}
+  - {tool_2}
 ---
 # {task_title}
 
@@ -203,7 +211,7 @@ Target: ${file}
 
 ---
 
-## 1.4 .agent.md (Custom Agents)
+## 1.4 *.agent.md (Custom Agents)
 
 - **Location:** `.github/agents/`
 - **Invocation:** Select from Agents dropdown in Chat, or mention with `@filename`
@@ -215,20 +223,23 @@ Target: ${file}
 ```yaml
 ---
 # Basic
-tools:                              # Optional: array of available tools
-  - name: editFiles
-  - name: runInTerminal
-  - name: readFile
-  - name: codebase
+tools:                              # Optional: array of available tools (string list of tool names)
+  - editFiles
+  - runInTerminal
+  - readFile
+  - codebase
 description: "Agent description"    # Optional: shown in agent list
 name: "Display name"                # Optional: display name different from filename
-model: "gpt-4o"                     # Optional: specify model
+model: "gpt-4o"                     # Optional: specify model (string or prioritized array)
 
 # Agent-to-agent collaboration
-handoffs:                           # Optional: handoff target agents
-  - agent-name-1
-  - agent-name-2
-agents:                             # Optional: sub-agents
+handoffs:                           # Optional: handoff targets
+  - label: "Button label"           # Display text on handoff button
+    agent: agent-name               # Target agent identifier
+    prompt: "Prompt text"           # Prompt to send to target agent
+    send: false                     # Optional: auto-submit prompt (default: false)
+    model: "GPT-5 (copilot)"        # Optional: model for handoff execution
+agents:                             # Optional: sub-agents (* to allow all)
   - sub-agent-1
 
 # MCP integration
@@ -237,9 +248,9 @@ mcp-servers:                        # Optional: MCP servers to use
 
 # Advanced settings
 argument-hint: "Specify review target"  # Optional: hint text at invocation
-user-invokable: true                    # Optional: can user invoke directly
-disable-model-invocation: false         # Optional: disable automatic model invocation
-target: "agent"                         # Optional: target mode
+user-invokable: true                    # Optional: can user invoke directly (default: true)
+disable-model-invocation: false         # Optional: disable automatic model invocation (default: false)
+target: "vscode"                        # Optional: target mode (vscode / github-copilot)
 ---
 ```
 
@@ -267,11 +278,13 @@ target: "agent"                         # Optional: target mode
 ```markdown
 ---
 tools:
-  - name: {tool_1}
-  - name: {tool_2}
+  - {tool_1}
+  - {tool_2}
 description: "{description}"
 handoffs:
-  - {handoff_agent_1}
+  - label: "{handoff_label}"
+    agent: {handoff_agent_1}
+    prompt: "{handoff_prompt}"
 ---
 
 # Your Role
@@ -293,18 +306,103 @@ You are {role_description}.
 
 ### Built-in Tools Reference
 
+> **Tip:** Type `#` in the chat input field to see a list of all available tools.
+
+#### File Operations
+
 | Tool Name | Function |
 |-----------|----------|
-| `editFiles` | Edit files |
-| `createFile` | Create files |
-| `readFile` | Read files |
-| `runInTerminal` | Run terminal commands |
-| `codebase` | Search codebase |
-| `searchResults` | Get web search results |
-| `fetch` | Fetch URLs |
-| `githubRepo` | GitHub repository operations |
-| `usages` | Find symbol usages |
-| `testFailure` | Get test failure info |
+| `editFiles` | Apply edits to files in the workspace |
+| `createFile` | Create a new file |
+| `readFile` | Read file content |
+| `listDirectory` | List files in a directory |
+| `createDirectory` | Create a new directory |
+| `fileSearch` | Search for files using glob patterns |
+| `textSearch` | Find text in files |
+
+#### Terminal & Tasks
+
+| Tool Name | Function |
+|-----------|----------|
+| `runInTerminal` | Run a shell command in the integrated terminal |
+| `getTerminalOutput` | Get terminal command output |
+| `terminalLastCommand` | Get the last terminal command and its output |
+| `terminalSelection` | Get the current terminal selection |
+| `runTask` | Run an existing task |
+| `createAndRunTask` | Create and run a new task |
+| `getTaskOutput` | Get task output |
+
+#### Search & Context
+
+| Tool Name | Function |
+|-----------|----------|
+| `codebase` | Search code in the workspace |
+| `searchResults` | Get results from the Search view |
+| `usages` | Find All References / Find Implementation / Go to Definition |
+| `problems` | Get errors and warnings from the Problems panel |
+| `selection` | Get the current editor selection |
+| `changes` | Get the list of source control changes |
+
+#### External Integration
+
+| Tool Name | Function |
+|-----------|----------|
+| `fetch` | Fetch web page content |
+| `githubRepo` | Search code in a GitHub repository |
+| `extensions` | Search for VS Code extensions |
+| `installExtension` | Install a VS Code extension |
+
+#### Testing
+
+| Tool Name | Function |
+|-----------|----------|
+| `runTests` | Run unit tests |
+| `testFailure` | Get test failure information |
+
+#### Notebooks
+
+| Tool Name | Function |
+|-----------|----------|
+| `editNotebook` | Edit a notebook |
+| `getNotebookSummary` | Get the list of notebook cells |
+| `readNotebookCellOutput` | Read notebook cell output |
+| `runCell` | Run a notebook cell |
+
+#### VS Code Operations
+
+| Tool Name | Function |
+|-----------|----------|
+| `runVscodeCommand` | Run a VS Code command |
+| `openSimpleBrowser` | Preview a locally-deployed web app |
+| `VSCodeAPI` | Ask about VS Code functionality and extension development |
+
+#### Scaffolding
+
+| Tool Name | Function |
+|-----------|----------|
+| `new` | Scaffold a new workspace |
+| `newWorkspace` | Create a new workspace |
+| `newJupyterNotebook` | Scaffold a new Jupyter notebook |
+| `getProjectSetupInfo` | Get project setup instructions and configuration |
+
+#### Other
+
+| Tool Name | Function |
+|-----------|----------|
+| `runSubagent` | Run a task in an isolated subagent context |
+| `todos` | Track implementation progress with a todo list |
+
+#### Tool Sets (Groups of Tools)
+
+| Tool Set Name | Function |
+|---------------|----------|
+| `edit` | Enable modification tools |
+| `search` | Enable file search tools |
+| `runCommands` | Enable terminal command tools |
+| `runNotebooks` | Enable notebook execution tools |
+| `runTasks` | Enable task execution tools |
+
+> **Reference:** [Use tools with agents](https://code.visualstudio.com/docs/copilot/agents/agent-tools) / [Cheat sheet - Chat tools](https://code.visualstudio.com/docs/copilot/reference/copilot-vscode-features#_chat-tools)
 
 ---
 
@@ -540,7 +638,7 @@ Copilot customization settings in `settings.json`:
 ```jsonc
 {
   // Search paths for custom instruction files
-  "github.copilot.chat.instructionFilesLocations": [
+  "chat.instructionsFilesLocations": [
     { ".github/instructions": "**" }
   ],
 
@@ -635,9 +733,9 @@ Copilot customization settings in `settings.json`:
 
 | File Type | Naming Pattern | Example |
 |-----------|---------------|---------|
-| `.instructions.md` | `{scope}-{purpose}.instructions.md` | `api-guidelines.instructions.md` |
-| `.prompt.md` | `{action}.prompt.md` | `review.prompt.md` |
-| `.agent.md` | `{role}.agent.md` | `reviewer.agent.md` |
+| `*.instructions.md` | `{scope}-{purpose}.instructions.md` | `api-guidelines.instructions.md` |
+| `*.prompt.md` | `{action}.prompt.md` | `review.prompt.md` |
+| `*.agent.md` | `{role}.agent.md` | `reviewer.agent.md` |
 | `SKILL.md` | Directory name as identifier | `.github/skills/deploy/SKILL.md` |
 
 ### 2.3 Quality Checklist
@@ -744,8 +842,8 @@ applyTo: "src/api/**"
 ---
 description: "Code review (bugs, performance, readability, security)"
 tools:
-  - name: readFile
-  - name: codebase
+  - readFile
+  - codebase
 ---
 Review ${file} from these perspectives:
 
@@ -765,9 +863,9 @@ Review ${file} from these perspectives:
 ---
 description: "Generate test file"
 tools:
-  - name: editFiles
-  - name: readFile
-  - name: runInTerminal
+  - editFiles
+  - readFile
+  - runInTerminal
 ---
 Generate tests for ${file}.
 
@@ -786,9 +884,9 @@ After generation, run `npx vitest run ${fileBasenameNoExtension}` to verify the 
 ```markdown
 ---
 tools:
-  - name: readFile
-  - name: codebase
-  - name: usages
+  - readFile
+  - codebase
+  - usages
 description: "Code review specialist agent"
 ---
 

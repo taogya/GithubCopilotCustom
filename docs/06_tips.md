@@ -26,8 +26,8 @@
 <!-- .github/agents/planner.agent.md -->
 ---
 tools:
-  - name: readFile
-  - name: codebase
+  - readFile
+  - codebase
 description: "実装の計画を立てるエージェント"
 ---
 あなたは設計エンジニアです。
@@ -41,11 +41,13 @@ description: "実装の計画を立てるエージェント"
 <!-- .github/agents/tdd.agent.md -->
 ---
 tools:
-  - name: editFiles
-  - name: runInTerminal
+  - editFiles
+  - runInTerminal
 description: "TDD実装エージェント"
 handoffs:
-  - reviewer
+  - label: レビュー依頼
+    agent: reviewer
+    prompt: 上記の実装をレビューしてください。
 ---
 テスト駆動で実装する:
 1. 🔴 Red: 失敗するテストを書く
