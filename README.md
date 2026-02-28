@@ -86,5 +86,4 @@ GitHub Copilot カスタム設定ファイル一式を生成してください�
 本ドキュメントは VS Code 公式ドキュメント（2025年7月時点）を基に作成した初版です。内容は AI と人間によるレビューを経ていますが、最新情報は [公式ドキュメント](https://code.visualstudio.com/docs/copilot/customization/overview) をご確認ください。
 
 
-リポジトリmain: 
-https://github.com/taogya/GithubCopilotCustom
+[リポジトリmain](https://github.com/taogya/GithubCopilotCustom)
